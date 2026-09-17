@@ -10,7 +10,7 @@ namespace SurfaceRiseOfHumanity.Missions
         [SerializeField] private bool completeOnInteraction;
 
         public string MissionId => missionId;
-        public string ObjectiveId => objectiveId;
+        public string ObjectiveId => string.IsNullOrWhiteSpace(objectiveId) ? gameObject.name : objectiveId;
         public string ObjectiveText => objectiveText;
         public bool IsComplete { get; private set; }
 
