@@ -23,15 +23,9 @@ namespace SurfaceRiseOfHumanity.Discovery
             return true;
         }
 
-        public void RestoreKnowledgeInternal(ScanKnowledge newKnowledge)
+        public void RestoreKnowledgeInternal(ScanKnowledge knowledge)
         {
-            if (newKnowledge == ScanKnowledge.Unknown)
-            {
-                Knowledge = ScanKnowledge.Unknown;
-                return;
-            }
-
-            Knowledge = newKnowledge;
+            Knowledge = knowledge;
             ScanCompleted?.Invoke(this, Knowledge);
         }
 

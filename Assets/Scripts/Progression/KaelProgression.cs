@@ -66,14 +66,16 @@ namespace SurfaceRiseOfHumanity.Progression
             return true;
         }
 
-        public void RestoreEnergy(float amount) => energy = Mathf.Clamp(energy + amount, 0f, definition != null ? definition.startingEnergy : 100f);
-        public bool TrySpendEnergy(float amount) { if (energy < amount) return false; energy -= amount; return true; }
-        public void RestoreStamina(float amount) => stamina = Mathf.Clamp(stamina + amount, 0f, definition != null ? definition.startingStamina : 100f);
+        public void RestoreEnergy(float amount) => energy = Mathf.Clamp(energy + amount, 0f, GetMaxEnergy());
+        public bool TrySpendEnergy(float amount) { if (amount < 0f || energy < amount) return false; energy -= amount; return true; }
+        public void RestoreStamina(float amount) => stamina = Mathf.Clamp(stamina + amount, 0f, GetMaxStamina());
+        public float GetMaxEnergy() => definition != null ? Mathf.Max(1f, definition.startingEnergy) : 100f;
+        public float GetMaxStamina() => definition != null ? Mathf.Max(1f, definition.startingStamina) : 100f;
+        public int GetMaxHealth() => definition != null ? Mathf.Max(1, definition.startingHealth) : 100;
 
         public void ApplyPlayerState(PlayerState state)
         {
             if (state == null) return;
-
             level = Mathf.Max(1, state.level);
             experience = Mathf.Max(0, state.experience);
             skillPoints = Mathf.Max(0, state.skillPoints);
@@ -81,29 +83,30 @@ namespace SurfaceRiseOfHumanity.Progression
             armor = Mathf.Max(0, state.armor);
             stamina = Mathf.Clamp(state.stamina, 0f, Mathf.Max(1f, state.maxStamina));
             energy = Mathf.Clamp(state.energy, 0f, Mathf.Max(1f, state.maxEnergy));
-
-            if (definition != null)
-            {
-                definition.startingHealth = Mathf.Max(1, state.maxHealth);
-                definition.startingEnergy = Mathf.Max(1f, state.maxEnergy);
-                definition.startingStamina = Mathf.Max(1f, state.maxStamina);
-            }
+            combat = Mathf.Max(0, state.combatSkill);
+            survival = Mathf.Max(0, state.survivalSkill);
+            technology = Mathf.Max(0, state.technologySkill);
+            LevelChanged?.Invoke(level);
         }
 
         public PlayerState CapturePlayerState()
         {
-            PlayerState state = new PlayerState();
-            state.level = level;
-            state.experience = experience;
-            state.skillPoints = skillPoints;
-            state.health = health;
-            state.maxHealth = Mathf.Max(1, definition != null ? definition.startingHealth : 100);
-            state.armor = armor;
-            state.stamina = stamina;
-            state.maxStamina = Mathf.Max(1f, definition != null ? definition.startingStamina : 100f);
-            state.energy = energy;
-            state.maxEnergy = Mathf.Max(1f, definition != null ? definition.startingEnergy : 100f);
-            return state;
+            return new PlayerState
+            {
+                level = level,
+                experience = experience,
+                skillPoints = skillPoints,
+                health = health,
+                maxHealth = GetMaxHealth(),
+                armor = armor,
+                stamina = stamina,
+                maxStamina = GetMaxStamina(),
+                energy = energy,
+                maxEnergy = GetMaxEnergy(),
+                combatSkill = combat,
+                survivalSkill = survival,
+                technologySkill = technology
+            };
         }
     }
 }
