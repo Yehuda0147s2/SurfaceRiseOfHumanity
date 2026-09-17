@@ -11,6 +11,7 @@ namespace SurfaceRiseOfHumanity.Discovery
         [SerializeField] private string unknownName = "UNKNOWN MACHINE";
         [SerializeField] private string identifiedName = "ROBOT SCOUT";
         [SerializeField] private float scanDuration = 2f;
+
         public string DiscoveryId => string.IsNullOrEmpty(discoveryId) ? gameObject.name : discoveryId;
         public ScanKnowledge Knowledge { get; private set; }
         public event Action<Scannable, ScanKnowledge> ScanCompleted;
@@ -20,6 +21,18 @@ namespace SurfaceRiseOfHumanity.Discovery
             Knowledge = Knowledge == ScanKnowledge.Unknown ? ScanKnowledge.Scanned : ScanKnowledge.AnalysisComplete;
             ScanCompleted?.Invoke(this, Knowledge);
             return true;
+        }
+
+        public void RestoreKnowledgeInternal(ScanKnowledge newKnowledge)
+        {
+            if (newKnowledge == ScanKnowledge.Unknown)
+            {
+                Knowledge = ScanKnowledge.Unknown;
+                return;
+            }
+
+            Knowledge = newKnowledge;
+            ScanCompleted?.Invoke(this, Knowledge);
         }
 
         public string GetDisplayName() => Knowledge == ScanKnowledge.Unknown ? unknownName : identifiedName;
