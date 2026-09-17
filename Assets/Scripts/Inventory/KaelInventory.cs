@@ -14,7 +14,7 @@ namespace SurfaceRiseOfHumanity.Inventory
         public int quantity;
     }
 
-    public sealed class KaelInventory : MonoBehaviour
+    public sealed partial class KaelInventory : MonoBehaviour
     {
         [SerializeField] private int capacity = 24;
         [SerializeField] private List<InventoryEntry> entries = new List<InventoryEntry>();
@@ -28,7 +28,7 @@ namespace SurfaceRiseOfHumanity.Inventory
             if (entry == null)
             {
                 if (entries.Count >= capacity) return false;
-                entry = new InventoryEntry { itemId = itemId, category = category, quantity = 0 };
+                entry = new InventoryEntry { itemId = itemId, category = category };
                 entries.Add(entry);
             }
             entry.quantity += quantity;
@@ -50,6 +50,12 @@ namespace SurfaceRiseOfHumanity.Inventory
         {
             InventoryEntry entry = entries.Find(x => x.itemId == itemId);
             return entry == null ? 0 : entry.quantity;
+        }
+
+        public void Clear()
+        {
+            entries.Clear();
+            Changed?.Invoke(null);
         }
     }
 }
