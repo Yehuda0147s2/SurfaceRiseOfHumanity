@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using SurfaceRiseOfHumanity.Core;
+using SurfaceRiseOfHumanity.WorldState;
 
 namespace SurfaceRiseOfHumanity.Progression
 {
@@ -68,5 +69,41 @@ namespace SurfaceRiseOfHumanity.Progression
         public void RestoreEnergy(float amount) => energy = Mathf.Clamp(energy + amount, 0f, definition != null ? definition.startingEnergy : 100f);
         public bool TrySpendEnergy(float amount) { if (energy < amount) return false; energy -= amount; return true; }
         public void RestoreStamina(float amount) => stamina = Mathf.Clamp(stamina + amount, 0f, definition != null ? definition.startingStamina : 100f);
+
+        public void ApplyPlayerState(PlayerState state)
+        {
+            if (state == null) return;
+
+            level = Mathf.Max(1, state.level);
+            experience = Mathf.Max(0, state.experience);
+            skillPoints = Mathf.Max(0, state.skillPoints);
+            health = Mathf.Clamp(state.health, 0, Mathf.Max(1, state.maxHealth));
+            armor = Mathf.Max(0, state.armor);
+            stamina = Mathf.Clamp(state.stamina, 0f, Mathf.Max(1f, state.maxStamina));
+            energy = Mathf.Clamp(state.energy, 0f, Mathf.Max(1f, state.maxEnergy));
+
+            if (definition != null)
+            {
+                definition.startingHealth = Mathf.Max(1, state.maxHealth);
+                definition.startingEnergy = Mathf.Max(1f, state.maxEnergy);
+                definition.startingStamina = Mathf.Max(1f, state.maxStamina);
+            }
+        }
+
+        public PlayerState CapturePlayerState()
+        {
+            PlayerState state = new PlayerState();
+            state.level = level;
+            state.experience = experience;
+            state.skillPoints = skillPoints;
+            state.health = health;
+            state.maxHealth = Mathf.Max(1, definition != null ? definition.startingHealth : 100);
+            state.armor = armor;
+            state.stamina = stamina;
+            state.maxStamina = Mathf.Max(1f, definition != null ? definition.startingStamina : 100f);
+            state.energy = energy;
+            state.maxEnergy = Mathf.Max(1f, definition != null ? definition.startingEnergy : 100f);
+            return state;
+        }
     }
 }
